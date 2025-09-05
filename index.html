@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>俄罗斯方块游戏</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- 游戏主容器 -->
+    <div class="game-container">
+        <!-- 游戏标题 -->
+        <h1>俄罗斯方块</h1>
+
+        <!-- 游戏区域 -->
+        <div class="game-area">
+            <!-- 游戏画布 -->
+            <canvas id="gameCanvas" width="300" height="600"></canvas>
+
+            <!-- 游戏信息面板 -->
+            <div class="info-panel">
+                <!-- 下一个方块预览 -->
+                <div class="next-piece">
+                    <h3>下一个</h3>
+                    <canvas id="nextCanvas" width="120" height="120"></canvas>
+                </div>
+
+                <!-- 分数显示 -->
+                <div class="score-info">
+                    <h3>分数</h3>
+                    <div class="score">0</div>
+                </div>
+
+                <!-- 等级显示 -->
+                <div class="level-info">
+                    <h3>等级</h3>
+                    <div class="level">1</div>
+                </div>
+
+                <!-- 行数显示 -->
+                <div class="lines-info">
+                    <h3>消除行数</h3>
+                    <div class="lines">0</div>
+                </div>
+
+                <!-- 游戏控制按钮 -->
+                <div class="controls">
+                    <button id="startBtn">开始游戏</button>
+                    <button id="pauseBtn">暂停</button>
+                    <button id="resetBtn">重新开始</button>
+                </div>
+
+                <!-- 游戏说明 -->
+                <div class="instructions">
+                    <h3>操作说明</h3>
+                    <p>← → 移动</p>
+                    <p>↓ 快速下降</p>
+                    <p>↑ 旋转</p>
+                    <p>空格 瞬间下降</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏结束弹窗 -->
+    <div id="gameOverModal" class="modal">
+        <div class="modal-content">
+            <h2>游戏结束</h2>
+            <p>最终分数: <span id="finalScore">0</span></p>
+            <p>消除行数: <span id="finalLines">0</span></p>
+            <button id="playAgainBtn">再玩一次</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

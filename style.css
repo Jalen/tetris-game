@@ -1,0 +1,320 @@
+/* 俄罗斯方块游戏样式 */
+
+/* 全局样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+}
+
+/* 游戏主容器 */
+.game-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    max-width: 800px;
+    width: 100%;
+}
+
+/* 游戏标题 */
+h1 {
+    text-align: center;
+    color: #4a5568;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 游戏区域 */
+.game-area {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* 游戏画布 */
+#gameCanvas {
+    border: 3px solid #4a5568;
+    border-radius: 10px;
+    background: #1a202c;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* 信息面板 */
+.info-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 200px;
+}
+
+/* 下一个方块预览 */
+.next-piece {
+    background: #f7fafc;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.next-piece h3 {
+    color: #4a5568;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+#nextCanvas {
+    border: 2px solid #e2e8f0;
+    border-radius: 5px;
+    background: #1a202c;
+}
+
+/* 分数信息 */
+.score-info,
+.level-info,
+.lines-info {
+    background: #f7fafc;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.score-info h3,
+.level-info h3,
+.lines-info h3 {
+    color: #4a5568;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.score,
+.level,
+.lines {
+    font-size: 2em;
+    font-weight: bold;
+    color: #667eea;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 控制按钮 */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.controls button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#startBtn {
+    background: linear-gradient(45deg, #48bb78, #38a169);
+    color: white;
+}
+
+#startBtn:hover {
+    background: linear-gradient(45deg, #38a169, #2f855a);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+}
+
+#pauseBtn {
+    background: linear-gradient(45deg, #ed8936, #dd6b20);
+    color: white;
+}
+
+#pauseBtn:hover {
+    background: linear-gradient(45deg, #dd6b20, #c05621);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(237, 137, 54, 0.4);
+}
+
+#resetBtn {
+    background: linear-gradient(45deg, #f56565, #e53e3e);
+    color: white;
+}
+
+#resetBtn:hover {
+    background: linear-gradient(45deg, #e53e3e, #c53030);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(245, 101, 101, 0.4);
+}
+
+/* 游戏说明 */
+.instructions {
+    background: #f7fafc;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.instructions h3 {
+    color: #4a5568;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.instructions p {
+    color: #718096;
+    margin: 5px 0;
+    font-size: 0.9em;
+}
+
+/* 游戏结束弹窗 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: white;
+    margin: 15% auto;
+    padding: 30px;
+    border-radius: 20px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-content h2 {
+    color: #4a5568;
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+.modal-content p {
+    color: #718096;
+    margin: 10px 0;
+    font-size: 1.1em;
+}
+
+#playAgainBtn {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#playAgainBtn:hover {
+    background: linear-gradient(45deg, #764ba2, #667eea);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .game-area {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .info-panel {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        min-width: auto;
+    }
+
+    .next-piece,
+    .score-info,
+    .level-info,
+    .lines-info,
+    .instructions {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .controls button {
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .modal-content {
+        width: 90%;
+        margin: 20% auto;
+    }
+}
+
+/* 游戏状态指示器 */
+.game-status {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    color: #4a5568;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.status-playing {
+    color: #48bb78;
+}
+
+.status-paused {
+    color: #ed8936;
+}
+
+.status-game-over {
+    color: #f56565;
+}
