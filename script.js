@@ -86,7 +86,7 @@ class TetrisGame {
         this.fireworksCtx = this.fireworksCanvas.getContext('2d');
         this.fireworks = [];
         this.fireworksActive = false;
-        
+
         // 行消除动画效果
         this.lineClearAnimations = [];
         this.animationActive = false;
@@ -347,24 +347,24 @@ class TetrisGame {
     // 清除完整行
     clearLines() {
         let linesToClear = [];
-        
+
         // 找出需要清除的行
         for (let y = BOARD_HEIGHT - 1; y >= 0; y--) {
             if (this.board[y].every(cell => cell !== 0)) {
                 linesToClear.push(y);
             }
         }
-        
+
         if (linesToClear.length > 0) {
             // 开始行消除动画
             this.startLineClearAnimation(linesToClear);
         }
     }
-    
+
     // 开始行消除动画
     startLineClearAnimation(linesToClear) {
         this.animationActive = true;
-        
+
         // 为每一行创建动画
         for (let i = 0; i < linesToClear.length; i++) {
             const y = linesToClear[i];
@@ -376,16 +376,16 @@ class TetrisGame {
                 particles: [],
                 completed: false
             };
-            
+
             // 为这一行创建粒子效果
             this.createLineClearParticles(animation);
             this.lineClearAnimations.push(animation);
         }
-        
+
         // 开始动画循环
         this.animateLineClear();
     }
-    
+
     // 创建行消除粒子
     createLineClearParticles(animation) {
         for (let x = 0; x < BOARD_WIDTH; x++) {
@@ -404,30 +404,30 @@ class TetrisGame {
             }
         }
     }
-    
+
     // 获取随机粒子颜色
     getRandomParticleColor() {
         const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43'];
         return colors[Math.floor(Math.random() * colors.length)];
     }
-    
+
     // 行消除动画循环
     animateLineClear() {
         if (!this.animationActive && this.lineClearAnimations.length === 0) return;
-        
+
         const currentTime = Date.now();
         let allCompleted = true;
-        
+
         for (let i = this.lineClearAnimations.length - 1; i >= 0; i--) {
             const animation = this.lineClearAnimations[i];
-            
+
             if (currentTime >= animation.startTime && !animation.completed) {
                 const elapsed = currentTime - animation.startTime;
                 animation.progress = Math.min(elapsed / animation.duration, 1);
-                
+
                 // 更新粒子
                 this.updateLineClearParticles(animation);
-                
+
                 if (animation.progress >= 1) {
                     animation.completed = true;
                     // 实际清除这一行
@@ -438,56 +438,56 @@ class TetrisGame {
             } else if (!animation.completed) {
                 allCompleted = false;
             }
-            
+
             // 移除已完成的动画
             if (animation.completed && animation.particles.length === 0) {
                 this.lineClearAnimations.splice(i, 1);
             }
         }
-        
+
         // 如果所有动画都完成了，更新分数
         if (allCompleted && this.lineClearAnimations.length === 0) {
             this.finishLineClear();
         }
-        
+
         if (this.animationActive || this.lineClearAnimations.length > 0) {
             requestAnimationFrame(() => this.animateLineClear());
         }
     }
-    
+
     // 更新行消除粒子
     updateLineClearParticles(animation) {
         for (let i = animation.particles.length - 1; i >= 0; i--) {
             const particle = animation.particles[i];
-            
+
             particle.x += particle.vx;
             particle.y += particle.vy;
             particle.vy += 0.2; // 重力效果
             particle.life -= particle.decay;
-            
+
             if (particle.life <= 0) {
                 animation.particles.splice(i, 1);
             }
         }
     }
-    
+
     // 从游戏板中移除行
     removeLineFromBoard(y) {
         this.board.splice(y, 1);
         this.board.unshift(new Array(BOARD_WIDTH).fill(0));
     }
-    
+
     // 完成行消除
     finishLineClear() {
         this.animationActive = false;
         const linesCleared = this.lineClearAnimations.length;
-        
+
         if (linesCleared > 0) {
             this.lines += linesCleared;
             this.updateScore(linesCleared);
             this.updateLevel();
         }
-        
+
         this.lineClearAnimations = [];
     }
 
@@ -539,20 +539,20 @@ class TetrisGame {
     // 游戏主循环
     update(currentTime) {
         if (this.gameState !== GAME_STATES.PLAYING) return;
-        
+
         const deltaTime = currentTime - this.lastTime;
         this.lastTime = currentTime;
-        
+
         // 如果正在播放行消除动画，暂停方块下降
         if (!this.animationActive) {
             this.dropTime += deltaTime;
-            
+
             if (this.dropTime >= this.dropInterval) {
                 this.movePiece(0, 1);
                 this.dropTime = 0;
             }
         }
-        
+
         this.draw();
         this.gameLoop = requestAnimationFrame((time) => this.update(time));
     }
@@ -607,7 +607,7 @@ class TetrisGame {
                 if (this.board[y][x]) {
                     // 检查这一行是否在动画中
                     const isAnimating = this.lineClearAnimations.some(anim => anim.y === y && !anim.completed);
-                    
+
                     if (isAnimating) {
                         // 绘制动画中的行（闪烁效果）
                         this.drawAnimatedBlock(x * BLOCK_SIZE, y * BLOCK_SIZE, this.board[y][x], y);
@@ -617,7 +617,7 @@ class TetrisGame {
                 }
             }
         }
-        
+
         // 绘制行消除粒子效果
         this.drawLineClearParticles();
     }
@@ -669,56 +669,56 @@ class TetrisGame {
         // 方块主体
         this.ctx.fillStyle = color;
         this.ctx.fillRect(x + 1, y + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
-        
+
         // 高光效果
         this.ctx.fillStyle = this.lightenColor(color, 0.3);
         this.ctx.fillRect(x + 1, y + 1, BLOCK_SIZE - 2, 3);
         this.ctx.fillRect(x + 1, y + 1, 3, BLOCK_SIZE - 2);
-        
+
         // 阴影效果
         this.ctx.fillStyle = this.darkenColor(color, 0.3);
         this.ctx.fillRect(x + BLOCK_SIZE - 4, y + 1, 3, BLOCK_SIZE - 2);
         this.ctx.fillRect(x + 1, y + BLOCK_SIZE - 4, BLOCK_SIZE - 2, 3);
     }
-    
+
     // 绘制动画中的方块（闪烁和缩放效果）
     drawAnimatedBlock(x, y, color, rowY) {
         const animation = this.lineClearAnimations.find(anim => anim.y === rowY);
         if (!animation) return;
-        
+
         // 闪烁效果
         const flashIntensity = Math.sin(animation.progress * Math.PI * 8) * 0.5 + 0.5;
         const scale = 1 + Math.sin(animation.progress * Math.PI * 4) * 0.1;
-        
+
         this.ctx.save();
-        
+
         // 应用缩放
         const centerX = x + BLOCK_SIZE / 2;
         const centerY = y + BLOCK_SIZE / 2;
         this.ctx.translate(centerX, centerY);
         this.ctx.scale(scale, scale);
         this.ctx.translate(-centerX, -centerY);
-        
+
         // 应用闪烁效果
         const flashColor = this.lightenColor(color, flashIntensity * 0.5);
-        
+
         // 方块主体
         this.ctx.fillStyle = flashColor;
         this.ctx.fillRect(x + 1, y + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
-        
+
         // 高光效果
         this.ctx.fillStyle = this.lightenColor(flashColor, 0.3);
         this.ctx.fillRect(x + 1, y + 1, BLOCK_SIZE - 2, 3);
         this.ctx.fillRect(x + 1, y + 1, 3, BLOCK_SIZE - 2);
-        
+
         // 阴影效果
         this.ctx.fillStyle = this.darkenColor(flashColor, 0.3);
         this.ctx.fillRect(x + BLOCK_SIZE - 4, y + 1, 3, BLOCK_SIZE - 2);
         this.ctx.fillRect(x + 1, y + BLOCK_SIZE - 4, BLOCK_SIZE - 2, 3);
-        
+
         this.ctx.restore();
     }
-    
+
     // 绘制行消除粒子
     drawLineClearParticles() {
         for (const animation of this.lineClearAnimations) {
