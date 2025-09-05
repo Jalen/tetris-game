@@ -80,7 +80,13 @@ class TetrisGame {
         this.ctx = this.canvas.getContext('2d');
         this.nextCanvas = document.getElementById('nextCanvas');
         this.nextCtx = this.nextCanvas.getContext('2d');
-
+        
+        // 烟花效果
+        this.fireworksCanvas = document.getElementById('fireworksCanvas');
+        this.fireworksCtx = this.fireworksCanvas.getContext('2d');
+        this.fireworks = [];
+        this.fireworksActive = false;
+        
         // 游戏状态
         this.gameState = GAME_STATES.MENU;
         this.board = [];
@@ -91,14 +97,15 @@ class TetrisGame {
         this.lines = 0;
         this.dropTime = 0;
         this.dropInterval = 1000; // 1秒
-
+        
         // 游戏循环
         this.lastTime = 0;
         this.gameLoop = null;
-
+        
         this.initializeBoard();
         this.setupEventListeners();
         this.updateDisplay();
+        this.setupFireworksCanvas();
     }
 
     // 初始化游戏板
@@ -381,6 +388,15 @@ class TetrisGame {
     showGameOverModal() {
         document.getElementById('finalScore').textContent = this.score;
         document.getElementById('finalLines').textContent = this.lines;
+        
+        // 检查是否达到高分成就
+        if (this.score > 100) {
+            document.getElementById('celebrationMessage').style.display = 'block';
+            this.startFireworks();
+        } else {
+            document.getElementById('celebrationMessage').style.display = 'none';
+        }
+        
         document.getElementById('gameOverModal').style.display = 'block';
     }
 
@@ -576,6 +592,171 @@ class TetrisGame {
         document.querySelector('.score').textContent = this.score;
         document.querySelector('.level').textContent = this.level;
         document.querySelector('.lines').textContent = this.lines;
+    }
+    
+    // 设置烟花画布
+    setupFireworksCanvas() {
+        this.fireworksCanvas.width = window.innerWidth;
+        this.fireworksCanvas.height = window.innerHeight;
+        
+        window.addEventListener('resize', () => {
+            this.fireworksCanvas.width = window.innerWidth;
+            this.fireworksCanvas.height = window.innerHeight;
+        });
+    }
+    
+    // 开始烟花效果
+    startFireworks() {
+        this.fireworksActive = true;
+        this.fireworks = [];
+        
+        // 创建多个烟花
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                this.createFirework();
+            }, i * 500);
+        }
+        
+        // 开始烟花动画循环
+        this.animateFireworks();
+        
+        // 5秒后停止烟花
+        setTimeout(() => {
+            this.fireworksActive = false;
+        }, 5000);
+    }
+    
+    // 创建烟花
+    createFirework() {
+        const firework = {
+            x: Math.random() * this.fireworksCanvas.width,
+            y: this.fireworksCanvas.height,
+            targetX: Math.random() * this.fireworksCanvas.width,
+            targetY: Math.random() * this.fireworksCanvas.height * 0.6,
+            particles: [],
+            exploded: false,
+            color: this.getRandomColor()
+        };
+        
+        this.fireworks.push(firework);
+    }
+    
+    // 获取随机颜色
+    getRandomColor() {
+        const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+    
+    // 烟花动画循环
+    animateFireworks() {
+        if (!this.fireworksActive && this.fireworks.length === 0) return;
+        
+        this.fireworksCtx.clearRect(0, 0, this.fireworksCanvas.width, this.fireworksCanvas.height);
+        
+        for (let i = this.fireworks.length - 1; i >= 0; i--) {
+            const firework = this.fireworks[i];
+            
+            if (!firework.exploded) {
+                // 烟花上升阶段
+                this.drawFireworkTrail(firework);
+                this.updateFireworkPosition(firework);
+                
+                if (firework.y <= firework.targetY) {
+                    this.explodeFirework(firework);
+                }
+            } else {
+                // 烟花爆炸阶段
+                this.updateFireworkParticles(firework);
+                this.drawFireworkParticles(firework);
+                
+                if (firework.particles.length === 0) {
+                    this.fireworks.splice(i, 1);
+                }
+            }
+        }
+        
+        if (this.fireworksActive || this.fireworks.length > 0) {
+            requestAnimationFrame(() => this.animateFireworks());
+        }
+    }
+    
+    // 绘制烟花轨迹
+    drawFireworkTrail(firework) {
+        this.fireworksCtx.beginPath();
+        this.fireworksCtx.arc(firework.x, firework.y, 3, 0, Math.PI * 2);
+        this.fireworksCtx.fillStyle = firework.color;
+        this.fireworksCtx.fill();
+        
+        // 添加拖尾效果
+        this.fireworksCtx.beginPath();
+        this.fireworksCtx.moveTo(firework.x, firework.y);
+        this.fireworksCtx.lineTo(firework.x, firework.y + 20);
+        this.fireworksCtx.strokeStyle = firework.color;
+        this.fireworksCtx.lineWidth = 2;
+        this.fireworksCtx.stroke();
+    }
+    
+    // 更新烟花位置
+    updateFireworkPosition(firework) {
+        const dx = firework.targetX - firework.x;
+        const dy = firework.targetY - firework.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > 1) {
+            firework.x += dx * 0.02;
+            firework.y += dy * 0.02;
+        }
+    }
+    
+    // 烟花爆炸
+    explodeFirework(firework) {
+        firework.exploded = true;
+        
+        // 创建爆炸粒子
+        for (let i = 0; i < 30; i++) {
+            const angle = (Math.PI * 2 * i) / 30;
+            const speed = 2 + Math.random() * 4;
+            
+            firework.particles.push({
+                x: firework.x,
+                y: firework.y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 1.0,
+                decay: 0.02 + Math.random() * 0.01,
+                size: 2 + Math.random() * 3,
+                color: firework.color
+            });
+        }
+    }
+    
+    // 更新烟花粒子
+    updateFireworkParticles(firework) {
+        for (let i = firework.particles.length - 1; i >= 0; i--) {
+            const particle = firework.particles[i];
+            
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vy += 0.1; // 重力效果
+            particle.life -= particle.decay;
+            
+            if (particle.life <= 0) {
+                firework.particles.splice(i, 1);
+            }
+        }
+    }
+    
+    // 绘制烟花粒子
+    drawFireworkParticles(firework) {
+        for (const particle of firework.particles) {
+            this.fireworksCtx.save();
+            this.fireworksCtx.globalAlpha = particle.life;
+            this.fireworksCtx.beginPath();
+            this.fireworksCtx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            this.fireworksCtx.fillStyle = particle.color;
+            this.fireworksCtx.fill();
+            this.fireworksCtx.restore();
+        }
     }
 }
 
