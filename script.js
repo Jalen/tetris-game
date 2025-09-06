@@ -298,6 +298,7 @@ class TetrisGame {
         while (this.movePiece(0, 1)) {
             this.score += 2; // 硬降奖励分数
         }
+        this.updateDisplay(); // 更新界面显示
     }
 
     // 检查碰撞
@@ -486,6 +487,7 @@ class TetrisGame {
             this.lines += linesCleared;
             this.updateScore(linesCleared);
             this.updateLevel();
+            this.updateDisplay(); // 更新界面显示
         }
 
         this.lineClearAnimations = [];
